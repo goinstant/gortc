@@ -1,0 +1,31 @@
+{
+  "name": "gortc",
+  "repo": "goinstant/gortc",
+  "description": "WebRTC with GoInstant presence and signaling",
+  "version": "1.0.0",
+  "keywords": [
+    "GoInstant",
+    "widget",
+    "gortc"
+  ],
+
+  "dependencies": {
+    "component/emitter": "1.1.0"
+  },
+
+  "development": {
+    "visionmedia/mocha": "*",
+    "component/jquery": "*"
+  },
+
+  "license": "BSD",
+
+  "main": "gortc.js",
+
+  "scripts": [
+    "gortc.js",
+    "vendor/webrtc/webrtc.bundle.js",
+    "vendor/attachmediastream/attachmediastream.bundle.js"
+  ]
+
+}
