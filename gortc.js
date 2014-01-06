@@ -15,6 +15,17 @@
  * @see http://simplewebrtc.com/
  */
 
+var support = window.mozRTCPeerConnection || window.webkitRTCPeerConnection ||
+              window.RTCPeerConnection;
+
+if (!support) {
+  module.exports = function() {
+    throw new Error('This browser doesn\'t support webrtc.');
+  };
+  module.exports.support = false;
+  return;
+}
+
 var WebRTC = require('./vendor/webrtc/webrtc.bundle.js');
 var attachMediaStream =
   require('./vendor/attachmediastream/attachmediastream.bundle.js');
@@ -61,6 +72,8 @@ function GoRTC (opts) {
     this.start();
   }
 }
+
+GoRTC.support = true;
 
 // Inherit a prototype from Emitter so we can emit events.
 GoRTC.prototype = Object.create(Emitter.prototype, {
