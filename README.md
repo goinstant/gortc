@@ -12,6 +12,11 @@ to offer video conferencing with no server deployment or configuration.
 <script>
 goinstant.connect(connectUrl, function(err, connection, lobby) {
 
+  if (!goinstant.integrations.goRTC.support) {
+    window.alert('Your browser does not support webrtc');
+    return;
+  }
+
   var gortc = new goinstant.integrations.goRTC({
     room: lobby,
     autoStart: true
