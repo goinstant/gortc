@@ -132,7 +132,7 @@ module.exports = function(grunt) {
     var exportName = '"];' +
       'this.goinstant = this.goinstant || {};' +
       'this.goinstant.integrations = this.goinstant.integrations || {};' +
-      'this.goinstant.integrations["goRTC';
+      'this.goinstant.integrations["GoRTC';
 
     var args = [
       'build', '-c',
