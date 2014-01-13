@@ -1,4 +1,5 @@
 /* jshint browser:true */
+/* global module, require */
 'use strict';
 
 /**
@@ -165,7 +166,7 @@ GoRTC.prototype.start = function(cb) {
 
 /**
  * Stop conferencing. The local user will leave the video conference.
- * @param {functioni(err)} cb Handler for when the user is fully removed.
+ * @param {function(err)} cb Handler for when the user is fully removed.
  */
 GoRTC.prototype.stop = function(cb) {
   cb = cb || function(){};
