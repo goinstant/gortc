@@ -2,8 +2,6 @@ components
 node_modules
 config/config.js
 build
-dist
-example.html
 
 *.swp
 *.swo

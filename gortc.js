@@ -27,7 +27,7 @@ if (!support) {
   return;
 }
 
-var WebRTC = require('./vendor/webrtc/webrtc.bundle.js');
+var WebRTC = require('./vendor/webrtc.js/webrtc.bundle.js');
 var attachMediaStream =
   require('./vendor/attachmediastream/attachmediastream.bundle.js');
 var Emitter = require('emitter');
