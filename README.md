@@ -1,100 +1,53 @@
-## GoRTC
+[![Build Status](https://travis-ci.org/goinstant/gortc.png?branch=master)](https://travis-ci.org/goinstant/gortc)
 
-The GoRTC library glues together [webrtc.js](https://github.com/HenrikJoreteg/webrtc.js) and [GoInstant](http://www.goinstant.com)
-to offer video conferencing with no server deployment or configuration.
+## [GoRTC Library](https://developers.goinstant.com/v1/widgets/audio_and_video/gortc.html)
 
-## Usage
+The [GoInstant](https://goinstant.com) GoRTC library glues together
+[webrtc.js](https://github.com/HenrikJoreteg/webrtc.js) and [GoInstant](http://www.goinstant.com)
+to offer audio/video conferencing with no server deployment or configuration.
+We use GoRTC as the base of our [WebRTC widget](https://github.com/goinstant/webrtc).
 
-```html
-<script type="text/javascript" src="https://cdn.goinstant.net/v1/platform.min.js"></script>
-<script src="./dist/gortc.min.js"></script>
+- To use GoRTC, you can [sign up for a free GoInstant account](https://goinstant.com/signup).
 
-<script>
-goinstant.connect(connectUrl, function(err, connection, lobby) {
+- [Read the documentation](https://developers.goinstant.com/v1/widgets/audio_and_video/gortc.html)
+on how GoRTC works.
 
-  if (!goinstant.integrations.goRTC.support) {
-    window.alert('Your browser does not support webrtc');
-    return;
-  }
+- [Check out our demo](http://webrtc.goinstant.com) leveraging the GoRTC library
+for easy audio/video conferencing.
 
-  var gortc = new goinstant.integrations.goRTC({
-    room: lobby,
-    autoStart: true
-  });
+Have questions? Contact us using [this form](https://goinstant.com/contact) or
+chat with us on IRC. #goinstant on [Freenode](http://freenode.net/).
 
-  gortc.on('localStream', function() {
-    document.getElementById('localVideoContainer').appendChild(gortc.localVideo);
-  });
+## Packaging
+For your convenience, we've packaged the GoRTC widget in several
+ways.
 
-  gortc.on('localStreamStopped', function() {
-    if (gortc.localVideo.parentNode) {
-      gortc.localVideo.parentNode.removeChild(gortc.localVideo);
-    }
-  });
+#### Using our CDN
 
-  gortc.on('peerStreamAdded', function(peer) {
-    document.getElementById('videoContainer').appendChild(peer.video);
-  });
+We host a copy on our CDN. Have a look at the [docs](https://developers.goinstant.com/v1/widgets/audio_and_video/gortc.html)
+to see how to reference those files, as well as how to initialize the component.
 
-  gortc.on('peerStreamRemoved', function(peer) {
-    if (peer.video.parentNode) {
-      peer.video.parentNode.removeChild(peer.video);
-    }
-  });
+#### How do I build the script myself?
 
-});
-</script>
+You may have your own build process. We've tried to make it easy to include
+the GoRTC widget in your build process.
+
+#### Bower
+
+We've packaged the GoRTC widget as a [bower](http://bower.io/)
+component.
+
+```
+bower install goinstant-gortc
 ```
 
-## Interface
+#### Component
 
-### Events
+We've packaged the GoRTC widget as a [component](http://component.io/).
 
-GoRTC emits all of the events from the [webrtc.js](https://github.com/HenrikJoreteg/webrtc.js)
-library, plus a few others. Most of the time, you'll care about the following events:
-
-* `localStream`: Called when the local user's outgoing stream is available. The stream
-is passed, or you can access a video element with the stream attached via `gortc.localVideo`.
-* `localStreamStopped`: The local user's outgoing stream ended.
-* `peerStreamAdded`: A remote user's incoming stream is available. Passes the peer object.
-The peer's `id` property matches the GoInstant `id` property for that user. You can access
-the `video` property on the peer for a video element with the stream attached.
-* `peerStreamRemoved`: A remote user's incoming stream was removed, because e.g. they called `stop` or closed their browser. Passes the peer object.
-
-Other events that are available:
-
-* `started`: The `start` function has completed successfully.
-* `stopped`: The `stop` function has completed successfully.
-* `audioOff`: Outgoing audio has stopped (e.g. `mute` was called).
-* `audioOn`: Outgoing audio has started (e.g. `unmute` was called).
-* `videoOff`: Outgoing video has stopped (e.g. `pause` was called).
-* `videoOn`: Outgoing video has started (e.g. `resume` was called).
-* `speaking`: Emitted when someone is speaking. Gets passed an empty object when
-the local user is speaking, and an object with an `id` property when a remote
-user is speaking.
-* `stoppedSpeaking`: Emitted when somone has stopped speaking. Passed the same
-arguments as `speaking`.
-
-### Options
-
-The following options are supported when instantiating GoRTC:
-
-* `room`: Required. The GoInstant room to use for conferencing with other users.
-* `autoStart`: Will call `start` at the end of the constructor if true. Default false.
-* `video`: Whether to include video in the outgoing stream. Default true.
-* `audio`: Whether to include audio in the outgoing stream. Default true.
-* `debug`: Will log debug information to the console if true. Default false.
-* `autoAdjustMic`: If true, will turn down outgoing volume when not speaking so as
-to minimize audio echo. Default false.
-
-### Functions
-
-* `start`: Starts conferencing with other users.
-* `stop`: Stops conferencing.
-* `pause`: Pauses the outgoing video and audio streams.
-* `resume`: Unpauses the outgoing video and audio streams.
-* `mute`: Mutes the outgoing audio stream only.
-* `unmute`: Unmutes the outgoing audio stream only.
+```
+component install goinstant/gortc
+```
 
 ## Contributing
 
@@ -116,7 +69,7 @@ npm install
 
 #### Building GoRTC for Development
 
-GoRTC is built as a [component](https://github.com/component/component).
+The GoRTC widget is built as a [component](https://github.com/component/component).
 Feel free to manually install dependencies and build using the `component`
 command line tool.
 
@@ -129,6 +82,25 @@ grunt build
 
 If this command runs succesfully you'll now have `components` and `build`
 directories in your Git repo root.
+
+### Running Tests
+
+Tests are written in [mocha](http://visionmedia.github.io/mocha/). They're run
+in an [HTML file](http://visionmedia.github.io/mocha/#html-reporter).
+
+Just open the test/index.html file to run the tests.
+
+On Mac OS, you can just run this command to open the HTML Runner in your
+default browser:
+
+```
+open test/index.html
+```
+
+## Widgets are built on top of GoInstant
+
+[GoInstant](https://goinstant.com) is an API for integrating realtime,
+multi-user functionality into your app. You can check it out and [sign up for free](https://goinstant.com/signup).
 
 ## License
 

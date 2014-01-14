@@ -1,0 +1,27 @@
+{
+  "name": "goinstant-gortc",
+  "main": "dist/gortc.js",
+  "version": "1.2.0",
+  "homepage": "https://github.com/goinstant/gortc",
+  "authors": [
+    "GoInstant",
+    "a salesforce.com company"
+  ],
+
+  "description": "A GoInstant WebRTC library",
+  "keywords": [
+    "GoInstant",
+    "widget",
+    "gortc"
+  ],
+
+  "license": "BSD",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
+
