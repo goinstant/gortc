@@ -2,7 +2,7 @@
   "name": "gortc",
   "repo": "goinstant/gortc",
   "description": "A GoInstant WebRTC library",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "keywords": [
     "GoInstant",
     "widget",

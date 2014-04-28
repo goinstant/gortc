@@ -1,36 +1,22 @@
+
 ;(function(){
 
 /**
- * Require the given path.
+ * Require the module at `name`.
  *
- * @param {String} path
+ * @param {String} name
  * @return {Object} exports
  * @api public
  */
 
-function require(path, parent, orig) {
-  var resolved = require.resolve(path);
+function require(name) {
+  var module = require.modules[name];
+  if (!module) throw new Error('failed to require "' + name + '"');
 
-  // lookup failed
-  if (null == resolved) {
-    orig = orig || path;
-    parent = parent || 'root';
-    var err = new Error('Failed to require "' + orig + '" from "' + parent + '"');
-    err.path = orig;
-    err.parent = parent;
-    err.require = true;
-    throw err;
-  }
-
-  var module = require.modules[resolved];
-
-  // perform real require()
-  // by invoking the module's
-  // registered function
-  if (!module.exports) {
-    module.exports = {};
+  if (!('exports' in module) && typeof module.definition === 'function') {
     module.client = module.component = true;
-    module.call(this, module.exports, require.relative(resolved), module);
+    module.definition.call(this, module.exports = {}, module);
+    delete module.definition;
   }
 
   return module.exports;
@@ -43,160 +29,33 @@ function require(path, parent, orig) {
 require.modules = {};
 
 /**
- * Registered aliases.
- */
-
-require.aliases = {};
-
-/**
- * Resolve `path`.
+ * Register module at `name` with callback `definition`.
  *
- * Lookup:
- *
- *   - PATH/index.js
- *   - PATH.js
- *   - PATH
- *
- * @param {String} path
- * @return {String} path or null
- * @api private
- */
-
-require.resolve = function(path) {
-  if (path.charAt(0) === '/') path = path.slice(1);
-
-  var paths = [
-    path,
-    path + '.js',
-    path + '.json',
-    path + '/index.js',
-    path + '/index.json'
-  ];
-
-  for (var i = 0; i < paths.length; i++) {
-    var path = paths[i];
-    if (require.modules.hasOwnProperty(path)) return path;
-    if (require.aliases.hasOwnProperty(path)) return require.aliases[path];
-  }
-};
-
-/**
- * Normalize `path` relative to the current path.
- *
- * @param {String} curr
- * @param {String} path
- * @return {String}
- * @api private
- */
-
-require.normalize = function(curr, path) {
-  var segs = [];
-
-  if ('.' != path.charAt(0)) return path;
-
-  curr = curr.split('/');
-  path = path.split('/');
-
-  for (var i = 0; i < path.length; ++i) {
-    if ('..' == path[i]) {
-      curr.pop();
-    } else if ('.' != path[i] && '' != path[i]) {
-      segs.push(path[i]);
-    }
-  }
-
-  return curr.concat(segs).join('/');
-};
-
-/**
- * Register module at `path` with callback `definition`.
- *
- * @param {String} path
+ * @param {String} name
  * @param {Function} definition
  * @api private
  */
 
-require.register = function(path, definition) {
-  require.modules[path] = definition;
+require.register = function (name, definition) {
+  require.modules[name] = {
+    definition: definition
+  };
 };
 
 /**
- * Alias a module definition.
+ * Define a module's exports immediately with `exports`.
  *
- * @param {String} from
- * @param {String} to
+ * @param {String} name
+ * @param {Generic} exports
  * @api private
  */
 
-require.alias = function(from, to) {
-  if (!require.modules.hasOwnProperty(from)) {
-    throw new Error('Failed to alias "' + from + '", it does not exist');
-  }
-  require.aliases[to] = from;
-};
-
-/**
- * Return a require function relative to the `parent` path.
- *
- * @param {String} parent
- * @return {Function}
- * @api private
- */
-
-require.relative = function(parent) {
-  var p = require.normalize(parent, '..');
-
-  /**
-   * lastIndexOf helper.
-   */
-
-  function lastIndexOf(arr, obj) {
-    var i = arr.length;
-    while (i--) {
-      if (arr[i] === obj) return i;
-    }
-    return -1;
-  }
-
-  /**
-   * The relative require() itself.
-   */
-
-  function localRequire(path) {
-    var resolved = localRequire.resolve(path);
-    return require(resolved, parent, path);
-  }
-
-  /**
-   * Resolve relative to the parent.
-   */
-
-  localRequire.resolve = function(path) {
-    var c = path.charAt(0);
-    if ('/' == c) return path.slice(1);
-    if ('.' == c) return require.normalize(p, path);
-
-    // resolve deps by returning
-    // the dep in the nearest "deps"
-    // directory
-    var segs = parent.split('/');
-    var i = lastIndexOf(segs, 'deps') + 1;
-    if (!i) i = 0;
-    path = segs.slice(0, i + 1).join('/') + '/deps/' + path;
-    return path;
+require.define = function (name, exports) {
+  require.modules[name] = {
+    exports: exports
   };
-
-  /**
-   * Check if module is defined at `path`.
-   */
-
-  localRequire.exists = function(path) {
-    return require.modules.hasOwnProperty(localRequire.resolve(path));
-  };
-
-  return localRequire;
 };
-require.register("component-indexof/index.js", function(exports, require, module){
+require.register("component~indexof@0.0.3", function (exports, module) {
 module.exports = function(arr, obj){
   if (arr.indexOf) return arr.indexOf(obj);
   for (var i = 0; i < arr.length; ++i) {
@@ -205,13 +64,14 @@ module.exports = function(arr, obj){
   return -1;
 };
 });
-require.register("component-emitter/index.js", function(exports, require, module){
+
+require.register("component~emitter@1.1.0", function (exports, module) {
 
 /**
  * Module dependencies.
  */
 
-var index = require('indexof');
+var index = require("component~indexof@0.0.3");
 
 /**
  * Expose `Emitter`.
@@ -372,7 +232,8 @@ Emitter.prototype.hasListeners = function(event){
 };
 
 });
-require.register("gortc/gortc.js", function(exports, require, module){
+
+require.register("gortc", function (exports, module) {
 /* jshint browser:true */
 /* global module, require */
 'use strict';
@@ -402,10 +263,10 @@ if (!support) {
   return;
 }
 
-var WebRTC = require('./vendor/webrtc.js/webrtc.bundle.js');
+var WebRTC = require("gortc/vendor/webrtc.js/webrtc.bundle.js");
 var attachMediaStream =
-  require('./vendor/attachmediastream/attachmediastream.bundle.js');
-var Emitter = require('emitter');
+  require("gortc/vendor/attachmediastream/attachmediastream.bundle.js");
+var Emitter = require("component~emitter@1.1.0");
 
 /**
  * @constructor
@@ -417,6 +278,9 @@ var Emitter = require('emitter');
  *        construction if true.
  */
 function GoRTC (opts) {
+  // Fix issue where Chrome + FF fail to communicate
+  opts.enableDataChannels = false;
+
   // Use the WebRTC library underneath.
   this.webrtc = new WebRTC(opts);
 
@@ -643,16 +507,17 @@ GoRTC.prototype._onMessageReceived = function(message, context) {
 module.exports = GoRTC;
 
 });
-require.register("gortc/vendor/webrtc.js/webrtc.bundle.js", function(exports, require, module){
+
+require.register("gortc/vendor/webrtc.js/webrtc.bundle.js", function (exports, module) {
 (function(e){if("function"==typeof bootstrap)bootstrap("webrtc",e);else if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else if("undefined"!=typeof ses){if(!ses.ok())return;ses.makeWebRTC=e}else"undefined"!=typeof window?window.WebRTC=e():global.WebRTC=e()})(function(){var define,ses,bootstrap,module,exports;
 return (function(e,t,n){function i(n,s){if(!t[n]){if(!e[n]){var o=typeof require=="function"&&require;if(!s&&o)return o(n,!0);if(r)return r(n,!0);throw new Error("Cannot find module '"+n+"'")}var u=t[n]={exports:{}};e[n][0].call(u.exports,function(t){var r=e[n][1][t];return i(r?r:t)},u,u.exports)}return t[n].exports}var r=typeof require=="function"&&require;for(var s=0;s<n.length;s++)i(n[s]);return i})({1:[function(require,module,exports){
-var webrtc = require('webrtcsupport');
-var getUserMedia = require('getusermedia');
-var PeerConnection = require('rtcpeerconnection');
-var WildEmitter = require('wildemitter');
-var hark = require('hark');
-var GainController = require('mediastream-gain');
-var mockconsole = require('mockconsole');
+var webrtc = require("webrtcsupport");
+var getUserMedia = require("getusermedia");
+var PeerConnection = require("rtcpeerconnection");
+var WildEmitter = require("wildemitter");
+var hark = require("hark");
+var GainController = require("mediastream-gain");
+var mockconsole = require("mockconsole");
 
 
 function WebRTC(opts) {
@@ -1304,8 +1169,8 @@ while (l--) {
 module.exports = mockconsole;
 
 },{}],4:[function(require,module,exports){
-var WildEmitter = require('wildemitter');
-var webrtc = require('webrtcsupport');
+var WildEmitter = require("wildemitter");
+var webrtc = require("webrtcsupport");
 
 
 function PeerConnection(config, constraints) {
@@ -1526,7 +1391,7 @@ PeerConnection.prototype.createDataChannel = function (name, opts) {
 module.exports = PeerConnection;
 
 },{"webrtcsupport":2,"wildemitter":5}],6:[function(require,module,exports){
-var WildEmitter = require('wildemitter');
+var WildEmitter = require("wildemitter");
 
 function getMaxVolume (analyser, fftBins) {
   var maxVolume = -Infinity;
@@ -1619,7 +1484,7 @@ module.exports = function(stream, options) {
 }
 
 },{"wildemitter":5}],7:[function(require,module,exports){
-var support = require('webrtcsupport');
+var support = require("webrtcsupport");
 
 
 function GainController(stream) {
@@ -1669,7 +1534,8 @@ module.exports = GainController;
 });
 ;
 });
-require.register("gortc/vendor/attachmediastream/attachmediastream.bundle.js", function(exports, require, module){
+
+require.register("gortc/vendor/attachmediastream/attachmediastream.bundle.js", function (exports, module) {
 (function(e){if("function"==typeof bootstrap)bootstrap("attachmediastream",e);else if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else if("undefined"!=typeof ses){if(!ses.ok())return;ses.makeAttachMediaStream=e}else"undefined"!=typeof window?window.attachMediaStream=e():global.attachMediaStream=e()})(function(){var define,ses,bootstrap,module,exports;
 return (function(e,t,n){function i(n,s){if(!t[n]){if(!e[n]){var o=typeof require=="function"&&require;if(!s&&o)return o(n,!0);if(r)return r(n,!0);throw new Error("Cannot find module '"+n+"'")}var u=t[n]={exports:{}};e[n][0].call(u.exports,function(t){var r=e[n][1][t];return i(r?r:t)},u,u.exports)}return t[n].exports}var r=typeof require=="function"&&require;for(var s=0;s<n.length;s++)i(n[s]);return i})({1:[function(require,module,exports){
 module.exports = function (stream, el, options) {
@@ -1716,14 +1582,12 @@ module.exports = function (stream, el, options) {
 });
 ;
 });
-require.alias("component-emitter/index.js", "gortc/deps/emitter/index.js");
-require.alias("component-emitter/index.js", "emitter/index.js");
-require.alias("component-indexof/index.js", "component-emitter/deps/indexof/index.js");
 
-require.alias("gortc/gortc.js", "gortc/index.js");if (typeof exports == "object") {
+if (typeof exports == "object") {
   module.exports = require("gortc");
 } else if (typeof define == "function" && define.amd) {
-  define(function(){ return require("gortc"); });
+  define([], function(){ return require("gortc"); });
 } else {
   this[""];this.goinstant = this.goinstant || {};this.goinstant.integrations = this.goinstant.integrations || {};this.goinstant.integrations["GoRTC"] = require("gortc");
-}})();
+}
+})()

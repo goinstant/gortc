@@ -1,5 +1,9 @@
 # GoRTC Changelog
 
+### v1.2.1
+
+- Disable data channels for firefox + chrome fix
+
 ### v1.2.0
 
 - Added docs
