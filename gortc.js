@@ -42,6 +42,9 @@ var Emitter = require('emitter');
  *        construction if true.
  */
 function GoRTC (opts) {
+  // Fix issue where Chrome + FF fail to communicate
+  opts.enableDataChannels = false;
+
   // Use the WebRTC library underneath.
   this.webrtc = new WebRTC(opts);
 
