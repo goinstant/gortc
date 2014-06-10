@@ -255,6 +255,7 @@ describe('GoRTC Integration', function() {
         var context = { userId: '1234' };
         fakeChannel.emitter.emit('message', message, context);
         sinon.assert.calledWith(peers[0].handleMessage, message);
+        assert.equal(peers[0].handleMessage.firstCall.args[0].from, '1234');
         done();
       });
     });

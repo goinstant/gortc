@@ -265,6 +265,8 @@ GoRTC.prototype._onMessageReceived = function(message, context) {
 
   // Not an offer. Tell each peer to handle the received message.
   var peers = this.webrtc.getPeers(context.userId, message.roomType);
+
+  message.from = context.userId;
   peers.forEach(function(peer) { peer.handleMessage(message); });
 };
 
