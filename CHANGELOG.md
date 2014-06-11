@@ -1,5 +1,9 @@
 # GoRTC Changelog
 
+### v1.2.2
+
+- Fixed undefined user id from remote events
+
 ### v1.2.1
 
 - Disable data channels for firefox + chrome fix
